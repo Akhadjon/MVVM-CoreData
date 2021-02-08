@@ -20,6 +20,7 @@ class APIService{
     func getPosts(completion:@escaping ([Post])->Void){
         
         let postUrl = "https://picsum.photos/v2/list?page=2&limit=5"
+     
         guard let url = URL(string:postUrl ) else {return}
         
         dataTask = URLSession.shared.dataTask(with: url, completionHandler: { (data, response, error) in

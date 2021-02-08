@@ -47,10 +47,6 @@ class PostsViewController: UIViewController ,UpdateTabeleViewDelegate{
         self.tableView.reloadData()
     }
     
-
-
-   
-
 }
 
 
@@ -76,7 +72,16 @@ extension PostsViewController:UITableViewDelegate, UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 200
+        return view.frame.height/4
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let detailVC = PostDetailViewController()
+        let selectedPost = viewModel.object(indexPath: indexPath)
+        detailVC.viewModel = PostDetailViewModel(postDetails: selectedPost)
+        navigationController?.pushViewController(detailVC, animated: true)
+        
+        
     }
     
     

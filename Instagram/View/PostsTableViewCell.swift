@@ -11,6 +11,29 @@ class PostsTableViewCell: UITableViewCell {
 
     //MARK: Properties
     
+    private let cache = NSCache<NSNumber, UIImage>()
+    private let utilityQueue =  DispatchQueue.global(qos: .utility)
+    
+    lazy var operationQueue :OperationQueue = {
+        let queue = OperationQueue()
+        queue.maxConcurrentOperationCount = 3
+        queue.underlyingQueue = self.utilityQueue
+        return queue
+    }()
+    
+    
+    private func loadImage(url:String, completion:@escaping (UIImage?)->() ){
+        self.operationQueue.addOperation {
+            let url = URL(string: url)!
+            guard let data = try? Data(contentsOf: url) else {return}
+            print(data)
+            let image = UIImage(data: data)
+            DispatchQueue.main.async {
+                completion(image)
+            }
+        }
+    }
+    
   static let identifier = "postTableViewCell"
        
    private let author:UILabel = {
@@ -22,7 +45,7 @@ class PostsTableViewCell: UITableViewCell {
    private let  postImage:UIImageView = {
          let imageView = UIImageView()
          imageView.clipsToBounds = true
-         imageView.contentMode = .scaleToFill
+         imageView.contentMode = .scaleAspectFill
          return imageView
      }()
     
@@ -43,12 +66,14 @@ class PostsTableViewCell: UITableViewCell {
         guard let urlString = postImageURL else {return}
         guard let url = URL(string: urlString) else {return}
         APIService.shared.getImageDataFrom(url: url) { [weak self] (data: Data) in
+            print("image size:",data)
             if let image = UIImage(data: data) {
                 self?.postImage.image = image
             } else {
                 self?.postImage.image = UIImage(named: "noImageAvailable")
             }
         }
+        
         
 
     }
@@ -68,7 +93,7 @@ class PostsTableViewCell: UITableViewCell {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        postImage.frame = contentView.bounds
+        postImage.frame =  contentView.bounds
         postImage.layer.cornerRadius = 10
        
     }
